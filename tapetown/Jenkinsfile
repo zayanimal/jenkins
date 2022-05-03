@@ -1,11 +1,18 @@
-node {
-    stage('Build') {
-        sh 'echo "build"'
-    }
-    stage('Test') {
-        sh 'echo "test"'
-    }
-    stage('Deploy') {
-        sh 'echo "deploy"'
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout playbook') {
+            steps {
+                git branch: 'master',
+                url: 'https://github.com/zayanimal/playbooks.git'
+            }
+        }
+
+        stage('Run playbook') {
+            steps {
+                ansiblePlaybook playbook: 'tapetown-update.yml', inventory: '/var/local/ansible/hosts.ini', credentialsId: 'tapetown_cred-ssh'
+            }
+        }
     }
 }
