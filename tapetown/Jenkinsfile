@@ -11,9 +11,10 @@ pipeline {
 
         stage('Run playbook') {
             steps {
-                ansiColor('xterm') {
-                    ansiblePlaybook playbook: 'tapetown-update.yml', inventory: '/var/local/ansible/hosts.ini', credentialsId: 'tapetown_cred-ssh'
-                }
+                ansiblePlaybook playbook: 'tapetown-update.yml',
+                inventory: '/var/local/ansible/hosts.ini',
+                credentialsId: 'tapetown_cred-ssh',
+                colorized: true
             }
         }
     }
