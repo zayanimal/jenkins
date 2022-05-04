@@ -30,7 +30,10 @@ properties([
         checkboxParameter(
             name: 'PLAYBOOKS',
             format: 'JSON',
-            pipelineSubmitContent: '{"CheckboxParameter": [{"key": "update", "value": "update"},{"key": "certs-update", "value": "certs-update"}]}',
+            pipelineSubmitContent: '{"CheckboxParameter": [ \
+                {"key": "certs-update", "value": "certs-update"}, \
+                {"key": "update", "value": "update"} \
+            ]}',
             description: ''
         )
     ])
@@ -45,10 +48,10 @@ node {
         loadColors()
 
         ansiColor('xterm') {
-            print "${PURPLE} Выбранные плейбуки: [${params.PLAYBOOK}]"
+            print "${PURPLE} Выбранные плейбуки: [${params.PLAYBOOKS}]"
         }
         
-        for (String playbook : params.PLAYBOOK.split(',')) {
+        for (String playbook : params.PLAYBOOKS.split(',')) {
             runPlaybook(playbook)
         }
     }
