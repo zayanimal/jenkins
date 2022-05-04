@@ -1,21 +1,40 @@
-pipeline {
-    agent any
+def fetchPlaybooks() {
+    git branch: 'master', url: 'https://github.com/zayanimal/playbooks.git'
+}
 
-    stages {
-        stage('Checkout playbook') {
-            steps {
-                git branch: 'master',
-                url: 'https://github.com/zayanimal/playbooks.git'
-            }
-        }
+def runPlaybook(name) {
+    ansiblePlaybook playbook: name,
+    inventory: '/var/local/ansible/hosts.ini',
+    credentialsId: 'tapetown_cred-ssh',
+    colorized: true
+}
 
-        stage('Run playbook') {
-            steps {
-                ansiblePlaybook playbook: 'tapetown-update.yml',
-                inventory: '/var/local/ansible/hosts.ini',
-                credentialsId: 'tapetown_cred-ssh',
-                colorized: true
-            }
-        }
+properties([
+    disableConcurrentBuilds(),
+    buildDiscarder(
+        logRotator(
+            numToKeepStr: '3',
+            artifactNumToKeepStr: '3'
+        )
+    ),
+    parameters([
+        choice(
+            name: 'PLAYBOOK',
+            choices: [
+                'update',
+                'certs-update'
+            ],
+            description: 'Обновление конфигурации сервера'
+        )
+    ])
+])
+
+node {
+    stage('Fetch playbooks') {
+        fetchPlaybooks()
+    }
+
+    stage('Run playbook') {
+        runPlaybook(params.PLAYBOOK + '.yml')
     }
 }
