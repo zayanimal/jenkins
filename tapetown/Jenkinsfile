@@ -1,12 +1,21 @@
-def fetchPlaybooks() {
+def void fetchPlaybooks() {
     git branch: 'master', url: 'https://github.com/zayanimal/playbooks.git'
 }
 
-def runPlaybook(name) {
-    ansiblePlaybook playbook: name,
+def void runPlaybook(name) {
+    ansiblePlaybook playbook: "${name}.yml",
     inventory: '/var/local/ansible/hosts.ini',
     credentialsId: 'tapetown_cred-ssh',
     colorized: true
+}
+
+def loadColors() {
+    RED='\033[0;31m'
+    BLUE='\033[0;34m'
+    CYAN='\033[0;36m'
+    GREEN='\033[0;32m'
+    PURPLE='\033[0;35m'
+    YELLOW='\033[0;43m'
 }
 
 properties([
@@ -18,13 +27,11 @@ properties([
         )
     ),
     parameters([
-        choice(
-            name: 'PLAYBOOK',
-            choices: [
-                'update',
-                'certs-update'
-            ],
-            description: 'Обновление конфигурации сервера'
+        checkboxParameter(
+            name: 'PLAYBOOKS',
+            format: 'JSON',
+            pipelineSubmitContent: '{"CheckboxParameter": [{"key": "update", "value": "update"},{"key": "certs-update", "value": "certs-update"}]}',
+            description: ''
         )
     ])
 ])
@@ -34,7 +41,15 @@ node {
         fetchPlaybooks()
     }
 
-    stage('Run playbook') {
-        runPlaybook(params.PLAYBOOK + '.yml')
+    stage('Run playbooks') {
+        loadColors()
+
+        ansiColor('xterm') {
+            print "${PURPLE} Выбранные плейбуки: [${params.PLAYBOOK}]"
+        }
+        
+        for (String playbook : params.PLAYBOOK.split(',')) {
+            runPlaybook(playbook)
+        }
     }
 }
