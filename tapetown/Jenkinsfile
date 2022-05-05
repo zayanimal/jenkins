@@ -31,8 +31,10 @@ properties([
             name: 'PLAYBOOKS',
             format: 'JSON',
             pipelineSubmitContent: '{"CheckboxParameter": [ \
-                {"key": "certs-update", "value": "certs-update"}, \
-                {"key": "update", "value": "update"} \
+                {"key": "INSTALL_PACKAGES", "value": "install_packages"}, \
+                {"key": "FETCH_TAPETOWN", "value": "fetch_tapetown"}, \
+                {"key": "UPDATE_NGINX", "value": "update_nginx"}, \
+                {"key": "UPDATE_CERTS", "value": "update_certs"} \
             ]}',
             description: ''
         )
